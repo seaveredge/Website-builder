@@ -1,5 +1,6 @@
 import re
 import os
+from datetime import datetime
 
 def iseven(n): return n % 2 == 0
 
@@ -96,8 +97,9 @@ class Header(html_template):
 class Footer(html_template):
     def __init__(self):
         super().__init__("blocks/footer.html")
-        # Does not have identifiers, so a bit redundant for being a class...
-        if len(self.identifiers) > 0: raise ValueError("Footer contains identifiers, while we did not expect them...")
+        # if len(self.identifiers) > 0: raise ValueError("Footer contains identifiers, while we did not expect them...") # Does not have identifiers, so a bit redundant for being a class...
+        date_time_str = datetime.now().strftime("%Y-%m-%d")
+        self.replace_text("DATETIME", date_time_str)
 
 
 
@@ -165,27 +167,27 @@ if __name__ == '__main__':
     home.add_html_article("background.html", "Academic background", tag="background")
     make_index_file(home, output_folder="output/home")
 
+    #===================================================================================================================
     # Research page
     research = Body('Research')
     research.add_html_article("news.html", "News")
-    research.add_html_article("blog.html", "Blog")
-    research.add_html_article("software.html", "software")
+    research.add_html_article("blog.html", "Blogs")
+    research.add_html_article("software.html", "Software")
     research.add_html_article("publications.html", "Publications")
     make_index_file(research, output_folder="output/research")
 
     # separate pages
     cdc2021page = Body('Research')
     cdc2021page.reset_body() # required to make an empty page
-    cdc2021page.add_header_item("Back to blogs","#https://research.chrisverhoek.com/#blog") # tag with escape character
-    cdc2021page.add_html_article("blog/cdc2021.html","Blog post","blog")
+    cdc2021page.add_html_article("blog/cdc2021.html","Back to blogs","#https://research.chrisverhoek.com/#blogs")
     make_index_file(cdc2021page, output_folder="output/content",file_name="cdc2021.html")
 
     slidespage = Body('Research')
     slidespage.reset_body()  # required to make an empty page
-    slidespage.add_header_item("Back to blogs", "#https://research.chrisverhoek.com/#blog") # tag with escape character
-    slidespage.add_html_article("blog/slides.html", "Presentation slides", "slides")
+    slidespage.add_html_article("blog/slides.html", "Back to blogs", "#https://research.chrisverhoek.com/#blogs")
     make_index_file(slidespage, output_folder="output/content", file_name="slides.html")
 
+    #===================================================================================================================
     # Personal page
     personal = Body('Personal')
     personal.add_html_article("prev_gc.html","Hiking in Gran Canaria","grancanaria")
