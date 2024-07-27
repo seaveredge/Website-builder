@@ -165,7 +165,7 @@ if __name__ == '__main__':
     home = Body('Home')
     home.add_html_article("aboutme.html", "About me", tag="aboutme")
     home.add_html_article("background.html", "Academic background", tag="background")
-    make_index_file(home, output_folder="output/home")
+    make_index_file(home, output_folder="./../githubpages")
 
     #===================================================================================================================
     # Research page
@@ -173,23 +173,23 @@ if __name__ == '__main__':
     research.add_html_article("news.html", "News")
     research.add_html_article("blog.html", "Blogs")
     research.add_html_article("publications.html", "Publications")
-    make_index_file(research, output_folder="output/research")
+    make_index_file(research, output_folder="./../SD-research")
 
     # separate pages
     cdc2021page = Body('Research')
     cdc2021page.reset_body() # required to make an empty page
     cdc2021page.add_html_article("blog/cdc2021.html","Back to blogs","#https://research.chrisverhoek.com/#blogs")
-    make_index_file(cdc2021page, output_folder="output/content",file_name="cdc2021.html")
+    make_index_file(cdc2021page, output_folder="./../SD-research/content",file_name="cdc2021.html")
 
     slidespage = Body('Research')
     slidespage.reset_body()  # required to make an empty page
     slidespage.add_html_article("blog/slides.html", "Back to blogs", "#https://research.chrisverhoek.com/#blogs")
-    make_index_file(slidespage, output_folder="output/content", file_name="slides.html")
+    make_index_file(slidespage, output_folder="./../SD-research/content", file_name="slides.html")
 
     softwarepage = Body('Research')
     softwarepage.reset_body()  # required to make an empty page
     softwarepage.add_html_article("blog/software.html", "Back to blogs", "#https://research.chrisverhoek.com/#blogs")
-    make_index_file(softwarepage, output_folder="output/content", file_name="software.html")
+    make_index_file(softwarepage, output_folder="./../SD-research/content", file_name="software.html")
 
     #===================================================================================================================
     # Personal page
@@ -197,24 +197,24 @@ if __name__ == '__main__':
     personal.add_html_article("prev_gc.html","Hiking in Gran Canaria","grancanaria")
     personal.add_html_article("prev_web.html", "Building this website", "website")
     personal.add_html_article("prev_ice.html", "Hiking in Iceland", "iceland")
-    make_index_file(personal, output_folder="output/personal")
+    make_index_file(personal, output_folder="./../SD-personal")
 
     grancanaria = Body('Personal')
     grancanaria.reset_body()  # required to make an empty page
     grancanaria.add_header_item("Back to personal page", "#https://personal.chrisverhoek.com/") # tag with escape character
     grancanaria.add_html_article("blog/grancanaria.html", "Hiking in Gran Canaria", "grancanaria")
-    make_index_file(grancanaria, output_folder="output/content", file_name="grancanaria.html")
+    make_index_file(grancanaria, output_folder="./../SD-personal/content", file_name="grancanaria.html")
 
     iceland = Body('Personal')
     iceland.reset_body()  # required to make an empty page
     iceland.add_header_item("Back to personal page", "#https://personal.chrisverhoek.com/") # tag with escape character
     iceland.add_html_article("blog/iceland.html", "Hiking in Iceland", "iceland")
-    make_index_file(iceland, output_folder="output/content", file_name="iceland.html")
+    make_index_file(iceland, output_folder="./../SD-personal/content", file_name="iceland.html")
 
     website = Body('Personal')
     website.reset_body()  # required to make an empty page
     website.add_header_item("Back to personal page", "#https://personal.chrisverhoek.com/") # tag with escape character
     website.add_html_article("blog/website.html", "Building this website", "website")
-    make_index_file(website, output_folder="output/content", file_name="website.html")
+    make_index_file(website, output_folder="./../SD-personal/content", file_name="website.html")
 
 
