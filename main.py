@@ -172,7 +172,6 @@ if __name__ == '__main__':
     research = Body('Research')
     research.add_html_article("news.html", "News")
     research.add_html_article("blog.html", "Blogs")
-    research.add_html_article("software.html", "Software")
     research.add_html_article("publications.html", "Publications")
     make_index_file(research, output_folder="output/research")
 
@@ -186,6 +185,11 @@ if __name__ == '__main__':
     slidespage.reset_body()  # required to make an empty page
     slidespage.add_html_article("blog/slides.html", "Back to blogs", "#https://research.chrisverhoek.com/#blogs")
     make_index_file(slidespage, output_folder="output/content", file_name="slides.html")
+
+    softwarepage = Body('Research')
+    softwarepage.reset_body()  # required to make an empty page
+    softwarepage.add_html_article("blog/software.html", "Back to blogs", "#https://research.chrisverhoek.com/#blogs")
+    make_index_file(softwarepage, output_folder="output/content", file_name="software.html")
 
     #===================================================================================================================
     # Personal page
