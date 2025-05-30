@@ -160,6 +160,7 @@ class Body(html_template):
 
 
 if __name__ == '__main__':
+    exec(open("synthesize_refs.py").read())
     # Home page
     home = Body('Home')
     home.add_html_article("aboutme.html", "About me", tag="aboutme")
