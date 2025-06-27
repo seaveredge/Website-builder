@@ -92,11 +92,13 @@ class ReferenceList:
         string = ""
         for i in range(N):
             Ninitials = len(auth.value[i].first)
+            if auth.value[i].last[0] == 'Verhoek': string = string + '<b>'
             for j in range(Ninitials):
                 string = string + auth.value[i].first[j][0] + "."
             if len(auth.value[i].von) != 0:
                 string = string + " " + auth.value[i].von[0]
             string = string + " " + auth.value[i].last[0]
+            if auth.value[i].last[0] == 'Verhoek': string = string + '</b>'
             if i < N - 2:
                 string = string + ", "
             elif i == N - 2:
