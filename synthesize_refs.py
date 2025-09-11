@@ -109,7 +109,7 @@ class ReferenceList:
 
     def checknote(self,item):
         if 'note' in item:
-            return "<b>" + item['note'].value + "</b>. "
+            return "<span style='font-variant: small-caps;'>" + item['note'].value + "</span>. "
         else: return ""
 
     def pdf_and_bibtex(self, tag):
@@ -126,6 +126,8 @@ if __name__ == '__main__':
     htmlfiles = References()
 
     J = ReferenceList('JOURNAL')
+    J.cite('verhoek2025interpolation')
+    J.cite('hoekstra2025augmentation')
     J.cite('verhoek2024behavddrep')
     J.cite('markovskyVerhoek2024mpum')
     J.cite('verhoek2024dd_dissipativity')
@@ -135,7 +137,6 @@ if __name__ == '__main__':
     htmlfiles.add_identifier(J)
 
     C = ReferenceList('CONFERENCE')
-    C.cite('hoekstra2025augmentation')
     C.cite('verhoek2024decoupling')
     C.cite('huijgevoort2024DDSTL')
     C.cite('spin2024unified')
