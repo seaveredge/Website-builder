@@ -1,5 +1,6 @@
 import re
 import os
+os.chdir(os.path.dirname(__file__))
 from datetime import datetime
 
 def iseven(n): return n % 2 == 0
@@ -165,7 +166,7 @@ if __name__ == '__main__':
     home = Body('Home')
     home.add_html_article("aboutme.html", "About me", tag="aboutme")
     home.add_html_article("background.html", "Academic background", tag="background")
-    make_index_file(home, output_folder="./../githubpages")
+    make_index_file(home, output_folder="./../Homepage")
 
     #===================================================================================================================
     # Research page
