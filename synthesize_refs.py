@@ -77,7 +77,9 @@ class ReferenceList:
         elif self.identifier == 'CONFERENCE' or self.identifier == 'ABSTRACT':
             wherepubbed = "In <i>" + item['booktitle'].value + "</i>"
         elif self.identifier == 'BOOKCHAP':
-            wherepubbed = "In <i>" + item['series'].value + "</i>, (" + item['booktitle'].value + "). " + item['publisher'].value
+            # Editor(s)
+            editors = self.authorlist(item, editorflag=True)
+            wherepubbed = "In <i>" + item['booktitle'].value + "</i>, vol. " + item['volume'].value + ", " + editors + item['publisher'].value
         elif self.identifier == 'TECHNOTE':
             wherepubbed = item['type'].value + ". " + item['institution'].value
         if 'pages' in item and self.identifier != 'TECHNOTE':
@@ -86,10 +88,16 @@ class ReferenceList:
             wherepubbed = wherepubbed + ". "
         return wherepubbed
 
-    def authorlist(self, item):
-        auth = item['author']
+    def authorlist(self, item, editorflag=False):
+        if editorflag is False:
+            auth = item['author']
+        else:
+            auth = item['editor']
         N = len(auth.value)
-        string = ""
+        if editorflag is False:
+            string = ""
+        else:
+            string = "(Editors: " if N > 1 else "(Editor: "
         for i in range(N):
             Ninitials = len(auth.value[i].first)
             if auth.value[i].last[0] == 'Verhoek': string = string + '<b>'
@@ -103,9 +111,13 @@ class ReferenceList:
                 string = string + ", "
             elif i == N - 2:
                 string = string + ", and "
+            elif i == N - 1 and editorflag is True:
+                string = string + "). "
             else:
                 string = string + " "
         return string
+    
+    
 
     def checknote(self,item):
         if 'note' in item:
