@@ -21,10 +21,6 @@ def get_refs():
         return library
 
 
-
-
-
-
 class References:
     def __init__(self):
         self.refhtml = html_template("articles/research/references.html")
@@ -117,8 +113,6 @@ class ReferenceList:
                 string = string + " "
         return string
     
-    
-
     def checknote(self,item):
         if 'note' in item:
             return "<span style='font-variant: small-caps;'>" + item['note'].value + "</span>. "
