@@ -96,20 +96,21 @@ class Header(html_template):
 
 
 class Footer(html_template):
-    def __init__(self):
+    def __init__(self, date_time_str=None):
         super().__init__("blocks/footer.html")
         # if len(self.identifiers) > 0: raise ValueError("Footer contains identifiers, while we did not expect them...") # Does not have identifiers, so a bit redundant for being a class...
-        date_time_str = datetime.now().strftime("%Y-%m-%d")
+        if date_time_str is None:
+            date_time_str = datetime.now().strftime("%Y-%m-%d")
         self.replace_text("DATETIME", date_time_str)
 
 
 
-def make_index_file(Body_obj, output_folder=None, file_name=None):
+def make_index_file(Body_obj, output_folder=None, file_name=None, done_date_time=None):
     # Assumption is that Body_obj is "complete"
     html_file = html_template("blocks/main.html")
     Header_obj = Header(Body_obj.title)
     Body_obj.add_all_articles()
-    Footer_obj = Footer()
+    Footer_obj = Footer(done_date_time)
 
     # Build the header;
     #   Body_obj.header_items is a list of 2-element tuple,
@@ -180,7 +181,7 @@ if __name__ == '__main__':
     cdc2021page = Body('Research')
     cdc2021page.reset_body() # required to make an empty page
     cdc2021page.add_html_article("blog/cdc2021.html","Back to blogs","#https://research.chrisverhoek.com/#blogs")
-    make_index_file(cdc2021page, output_folder="./../SD-research/content",file_name="cdc2021.html")
+    make_index_file(cdc2021page, output_folder="./../SD-research/content",file_name="cdc2021.html", done_date_time="2021-09-14")
 
     slidespage = Body('Research')
     slidespage.reset_body()  # required to make an empty page
@@ -210,12 +211,12 @@ if __name__ == '__main__':
     iceland.reset_body()  # required to make an empty page
     iceland.add_header_item("Back to personal page", "#https://personal.chrisverhoek.com/") # tag with escape character
     iceland.add_html_article("blog/iceland.html", "Hiking in Iceland", "iceland")
-    make_index_file(iceland, output_folder="./../SD-personal/content", file_name="iceland.html")
+    make_index_file(iceland, output_folder="./../SD-personal/content", file_name="iceland.html", done_date_time="2024-06-18")
 
     website = Body('Personal')
     website.reset_body()  # required to make an empty page
     website.add_header_item("Back to personal page", "#https://personal.chrisverhoek.com/") # tag with escape character
     website.add_html_article("blog/website.html", "Building this website", "website")
-    make_index_file(website, output_folder="./../SD-personal/content", file_name="website.html")
+    make_index_file(website, output_folder="./../SD-personal/content", file_name="website.html", done_date_time="2025-10-09")
 
 
