@@ -44,6 +44,7 @@ class ReferenceList:
         self.theref = self.theref + self.get_bibref_format(tag)
 
     def get_bibref_format(self,tag):
+        # todo: Select specific fields to include
         return "<pre id = \"" + tag + "\">\n" + self.library[tag].raw + "\n</pre>\n\n"
 
     def get_bib_format(self,tag):
@@ -115,16 +116,25 @@ class ReferenceList:
     
     def checknote(self,item):
         if 'note' in item:
-            return "<span style='font-variant: small-caps;'>" + item['note'].value + "</span>. "
+            notestring = str.upper(item['note'].value[0]) + str.lower(item['note'].value[1:])
+            return "<span style='font-variant: small-caps;'>" + notestring + "</span>. "
         else: return ""
 
     def pdf_and_bibtex(self, tag):
+        # ToDo: Think of whether to display full DOI
         item = self.library[tag].fields_dict
         linkstr = "("
-        if 'doi' in item: linkstr = linkstr + "<a href=\"" + item['doi'].value + "\" target=\"_blank\">pdf</a>, "
+        if 'doi' in item and 'url' not in item:
+            linkstr = linkstr + "<a href=\"" + item['doi'].value + "\" target=\"_blank\">pdf</a>, "
         elif 'url' in item: linkstr = linkstr + "<a href=\"" + item['url'].value + "\" target=\"_blank\">pdf</a>, "
         else: linkstr = linkstr + "pdf available on request, "
-        linkstr = linkstr + "<a href=\"content/references.html#" + tag + "\" target=\"_blank\">bibtex</a>)"
+        linkstr = linkstr + "<a href=\"content/references.html#" + tag + "\" target=\"_blank\">bibtex</a>"
+        if 'doi' in item:
+            # doi_link = item['doi'].value
+            # doi_code = doi_link.split("doi.org/")[1]
+            # linkstr = linkstr + ", <span style='font-variant: small-caps;'> doi: <a href=\"" + item['doi'].value + "\" target=\"_blank\">" + doi_code + "</a></span>"
+            linkstr = linkstr + ", <span style='font-variant: small-caps;'><a href=\"" + item['doi'].value + "\" target=\"_blank\">doi</a></span>"
+        linkstr = linkstr + ")."
         return linkstr
 
 
@@ -132,13 +142,13 @@ if __name__ == '__main__':
     htmlfiles = References()
 
     J = ReferenceList('JOURNAL')
-    J.cite('verhoek2025interpolation')
+    J.cite('verhoek2026dpcjournal')
+    J.cite('verhoek2026interpolation')
+    J.cite('markovskyVerhoek2026mpum')
+    J.cite('verhoek2025behavddrep')
     J.cite('hoekstra2025augmentation')
-    J.cite('verhoek2024behavddrep')
-    J.cite('markovskyVerhoek2024mpum')
+    J.cite('verhoek2025-J-statefeedback')
     J.cite('verhoek2024dd_dissipativity')
-    J.cite('verhoek2023dpcjournal')
-    J.cite('verhoek2024-J-statefeedback')
     J.cite('verhoek2023incremental')
     htmlfiles.add_identifier(J)
 
