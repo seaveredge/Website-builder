@@ -39,19 +39,19 @@ class ReferenceList:
         self.lib = get_refs()
         self.library = self.lib.entries_dict
 
-    def cite(self,tag):
-        self.thelist = self.thelist + "<li id = \"pub" + tag + "\">\n\t" + self.get_bib_format(tag) + "\n</li>\n"
+    def cite(self,tag,preprint=False):
+        self.thelist = self.thelist + "<li id = \"pub" + tag + "\">\n\t" + self.get_bib_format(tag,preprint) + "\n</li>\n"
         self.theref = self.theref + self.get_bibref_format(tag)
 
     def get_bibref_format(self,tag):
         # todo: Select specific fields to include
         return "<pre id = \"" + tag + "\">\n" + self.library[tag].raw + "\n</pre>\n\n"
 
-    def get_bib_format(self,tag):
+    def get_bib_format(self,tag,preprint=False):
         if tag not in self.library: raise ValueError('bib entry not in refs.bib!!')
         entry = self.library[tag].fields_dict
-        if not self.check_entry(tag): raise ValueError('bib entry: ' + tag + 'incorrect item in refs.bib!!')
-        htmlformat = self.authorlist(entry) + "(" + entry['year'].value + "). \"" + entry['title'].value + ".\" " + self.pubwhere(entry) + self.checknote(entry) +  self.pdf_and_bibtex(tag)
+        if not self.check_entry(tag) and not preprint: raise ValueError('bib entry: ' + tag + 'incorrect item in refs.bib!!')
+        htmlformat = self.authorlist(entry) + "(" + entry['year'].value + "). \"" + entry['title'].value + ".\" " + self.pubwhere(entry,preprint) + self.checknote(entry) +  self.pdf_and_bibtex(tag)
         return htmlformat
 
     def check_entry(self,tag):
@@ -63,7 +63,7 @@ class ReferenceList:
         elif self.identifier == 'TECHNOTE' and self.library[tag].entry_type == 'techreport': flag = True
         return flag
 
-    def pubwhere(self, item):
+    def pubwhere(self, item, preprint=False):
         wherepubbed = ""
         if self.identifier == 'JOURNAL':
             if 'volume' in item:
@@ -72,7 +72,8 @@ class ReferenceList:
             else: volnm = ""
             wherepubbed = "<i>" + item['journal'].value + "</i>" + volnm
         elif self.identifier == 'CONFERENCE' or self.identifier == 'ABSTRACT':
-            wherepubbed = "In <i>" + item['booktitle'].value + "</i>"
+            if preprint is True: wherepubbed = "<i>" + item['journal'].value + "</i>"
+            else:                wherepubbed = "In <i>" + item['booktitle'].value + "</i>"
         elif self.identifier == 'BOOKCHAP':
             # Editor(s)
             editors = self.authorlist(item, editorflag=True)
@@ -143,9 +144,11 @@ if __name__ == '__main__':
 
     J = ReferenceList('JOURNAL')
     J.cite('verhoek2026dpcjournal')
+    J.cite('verhoek2026behavddrep')
     J.cite('verhoek2026interpolation')
     J.cite('markovskyVerhoek2026mpum')
-    J.cite('verhoek2025behavddrep')
+    J.cite('hemelhof2026identification')
+    J.cite('gyorok2026datadriven')
     J.cite('hoekstra2025augmentation')
     J.cite('verhoek2025-J-statefeedback')
     J.cite('verhoek2024dd_dissipativity')
@@ -153,6 +156,8 @@ if __name__ == '__main__':
     htmlfiles.add_identifier(J)
 
     C = ReferenceList('CONFERENCE')
+    C.cite('verhoek2026quantitative', preprint=True) # hack to use article bib class
+    C.cite('schmitz2026continuous', preprint=True) # hack to use article bib class
     C.cite('verhoek2024decoupling')
     C.cite('huijgevoort2024DDSTL')
     C.cite('spin2024unified')
