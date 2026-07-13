@@ -205,7 +205,7 @@ if __name__ == '__main__':
     grancanaria.reset_body()  # required to make an empty page
     grancanaria.add_header_item("Back to personal page", "#https://personal.chrisverhoek.com/") # tag with escape character
     grancanaria.add_html_article("blog/grancanaria.html", "Hiking in Gran Canaria", "grancanaria")
-    make_index_file(grancanaria, output_folder="./../SD-personal/content", file_name="grancanaria.html")
+    make_index_file(grancanaria, output_folder="./../SD-personal/content", file_name="grancanaria.html", done_date_time="2026-03-05")
 
     iceland = Body('Personal')
     iceland.reset_body()  # required to make an empty page
