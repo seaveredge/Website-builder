@@ -6,25 +6,143 @@ from main import html_template, get_file_content
 
 import markdown
 
+
+# An entry always starts with:
+# - DD-MM-YYYY | Some text
+ENTRY_RE = re.compile(
+    r"^-\s*(\d{2}-\d{2}-\d{4})\s*\|\s*(.*)$"
+)
+
+# Custom items such as:
+# $$SPECIAL1$$
+# $$SPECIAL42$$
+ITEM_RE = re.compile(r"\$\$SPECIAL(\w+)\$\$")
+
 def get_raw_news():
     news_lines = get_file_content("news.md").splitlines()
     return news_lines
 
-def inline_markdown(text: str) -> str:
-    """
-    Convert Markdown intended for a single line into HTML.
 
-    Supports normal Markdown links, that should link to the outside world, and internal links, indicated with 
-    ```md
-        [label](url){int}.
-    ```
+def parse_entries(lines: list[str]) -> list[dict]:
+    """
+    Parse the source file into entries.
+
+    A new entry starts with:
+        - DD-MM-YYYY | text
+
+    All following lines belong to that entry until another entry
+    starts.
     """
 
-    # Temporarily protect our custom links so that Markdown doesn't
-    # process them before we can add target="_blank".
+    entries = []
+    current = None
+
+    for line_number, line in enumerate(lines, start=1):
+        line = line.rstrip()
+
+        match = ENTRY_RE.match(line)
+
+        if match:
+            # Save the previous entry.
+            if current is not None:
+                entries.append(current)
+
+            current = {
+                "date": match.group(1),
+                "lines": [match.group(2)],
+                "line_number": line_number,
+            }
+
+        elif current is not None:
+            # Everything after an entry belongs to that entry.
+            current["lines"].append(line)
+
+        elif line.strip():
+            raise ValueError(
+                f"Line {line_number} appears before the first entry: "
+                f"{line!r}"
+            )
+
+    # Don't forget the final entry.
+    if current is not None:
+        entries.append(current)
+
+    return entries
+
+
+def convert_custom_items(
+    html: str,
+    items: dict[str, str],
+) -> str:
+    """
+    Replace $$SPECIALx$$ markers with custom HTML.
+
+    Example:
+
+        $$SPECIAL1$$
+
+    with:
+
+        {
+            "SPECIAL1": '<figure>...</figure>'
+        }
+    """
+
+    def replace(match):
+        identifier = match.group(1)
+        key = f"SPECIAL{identifier}"
+
+        if key not in items:
+            raise ValueError(
+                f"Unknown custom item: $${key}$$"
+            )
+
+        return items[key]
+
+    return ITEM_RE.sub(replace, html)
+
+
+def markdown_to_html(
+    text: str,
+    items: dict[str, str],
+) -> str:
+    """
+    Convert Markdown to HTML.
+
+    Custom $$SPECIALx$$ markers are protected before Markdown
+    conversion and replaced afterwards.
+    """
+
+    # Markdown shouldn't try to interpret our custom markers.
+    # Replace them with safe placeholders first.
+    # # custom_items = []
+
+    # # def save_item(match):
+    # #     identifier = match.group(1)
+    # #     key = f"SPECIAL{identifier}"
+
+    # #     if key not in items:
+    # #         raise ValueError(
+    # #             f"Unknown custom item: $${key}$$"
+    # #         )
+
+    # #     placeholder = f"___CUSTOM_ITEM_{len(custom_items)}___"
+    # #     custom_items.append((placeholder, items[key]))
+
+    # #     return placeholder
+    
+    # # text = ITEM_RE.sub(save_item, text)
+
+    # # Convert Markdown.
+    # html = markdown.markdown(
+    #     text,
+    #     extensions=[
+    #         "nl2br",
+    #     ],
+    # )
 
     links = []
-
+    
     def save_link(match):
         label = match.group(1)
         url = match.group(2)
@@ -41,11 +159,11 @@ def inline_markdown(text: str) -> str:
     text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)(?:\{(int)\})?', save_link, text)
 
     # Let Python-Markdown handle the normal Markdown.
-    html = markdown.markdown(text)
+    md = markdown.Markdown(extensions=["nl2br"])
+    html = md.convert(text)
 
-    # Remove the <p> wrapper because this is inline Markdown.
     if html.startswith("<p>") and html.endswith("</p>"):
-        html = html[3:-4]
+            html = html[3:-4]
 
     # Replace our protected links.
     for i, (label, url, modifier) in enumerate(links):
@@ -74,88 +192,101 @@ def inline_markdown(text: str) -> str:
 
         html = html.replace(placeholder, link_html)
 
+    # Put the custom HTML back.
+    for identifier in items:
+        html = html.replace(f'$${identifier}$$', items[identifier])
+
     return html
 
 
-def parse_line(line: str) -> tuple[date, str]:
-    """Parse 'DATE | text' into a date and text."""
-
-    line = line.strip()
-
-    if not line or line.startswith("#"):
-        raise ValueError("Empty/comment line")
-
-    try:
-        date_text, content = line.split("|", 1)
-    except ValueError:
-        raise ValueError(
-            f"Expected 'DATE | TEXT', got: {line!r}"
-        )
-
-    entry_date = date_text.strip()[1:].strip() # remove the leading '-'
-    if len(entry_date) != 10:
-        raise ValueError(
-            f"Expected date in YYYY-MM-DD format, got: {entry_date!r}"
-        )
-    
-    return entry_date.strip(), content.strip()
-
-
 def generate_dl(
-    lines: list[str],
+    entries: list[dict],
+    items: dict[str, str],
     limit: int | None = None,
-    newest_first: bool = False,
+    old_new: bool = False,
 ) -> str:
-    """Generate the HTML <section><dl>...</dl></section>."""
+    """
+    Generate the final HTML <section><dl>...</dl></section>.
+    """
 
-    entries = []
-
-    for line_number, line in enumerate(lines, start=1):
-        line = line.strip()
-
-        if not line or line.startswith("#"):
-            continue
-
-        try:
-            entry_date, text = parse_line(line)
-        except ValueError as e:
-            raise ValueError(
-                f"Error on line {line_number}: {e}"
-            ) from e
-
-        entries.append((entry_date, text))
-
-    if newest_first:
-        entries.sort(reverse=True)
-    else:
-        entries.sort()
 
     if limit is not None:
-        entries = entries[:limit]
+        if old_new: # true = new
+            entries = entries[:limit]
+        else: # false = old
+            entries = entries[limit:]
 
     output = [
-        "<section>",
-        "  <dl>",
+        "<dl>",
     ]
 
-    for entry_date, text in entries:
-        html = inline_markdown(text)
+    for entry in entries:
+        text = "\n   ".join(entry["lines"])
+
+        html = markdown_to_html(
+            text,
+            items,
+        )
 
         output.append(
-            f"    <dt>{entry_date}</dt>"
-        )
-        output.append(
-            f"    <dd>{html}</dd>"
+            f"  <dt>{entry['date']}</dt><dd>{html}</dd>"
         )
 
     output.extend([
-        "  </dl>",
-        "</section>",
+        "</dl>",
     ])
 
     return "\n".join(output)
 
+
+def generate_from_file(
+    items: dict[str, str],
+    limit: int | None = None,
+
+) -> str:
+    """
+    Read the Markdown source file and generate the HTML.
+    """
+
+    lines = get_raw_news()
+
+    entries = parse_entries(lines)
+
+    # robustness value for limit
+    if limit is not None:
+        limit = max(1, limit)  # Ensure at least one entry is included.
+        limit = min(limit, len(entries))  # Don't exceed the number of entries.
+    else:
+        limit = len(entries)  # Include all entries if no limit is specified.
+    last_date = entries[limit-1]['date']
+    new_news = generate_dl(entries, items=items, limit=limit, old_new=True)
+    old_news = generate_dl(entries, items=items, limit=limit, old_new=False)
+    return new_news, old_news, last_date
+
+# END OF MARKDOWN FUNCTIONS
+
+
 if __name__ == "__main__":
-    news_lines = get_raw_news()
-    dl_html = generate_dl(news_lines, limit=None, newest_first=True)
-    print(dl_html)
+    SPECIAL_ITEMS = {
+        "SPECIAL1": "<figure><img src=\"https://assets.w3.tue.nl/w/fileadmin/_processed_/7/6/csm_130525%20Verhoek%20Promotie_8e1c9e104f.jpg\" alt=\"Defense\" style=\"width:60%; border-radius: 5%;\"></figure>",
+    }
+    NUMBER_OF_NEWS_ITEMS = 20
+
+    # Generate HTML for new and old news items:
+    html_new, html_old, last_date = generate_from_file(
+            items=SPECIAL_ITEMS,
+            limit=NUMBER_OF_NEWS_ITEMS,
+        )
+
+    # generate html templates and fill with old or new news!
+    newnews = html_template("articles/research/t_newnews.html")
+    newnews.replace_text('NEWNEWS', html_new)
+    newnews.replace_text('DATELAST', last_date)
+
+    oldnews = html_template("articles/research/t_oldnews.html")
+    oldnews.replace_text('OLDNEWS', html_old)
+    oldnews.replace_text('DATELAST', last_date)
+
+    # save generated files
+    newnews.save_contents('articles/research','g_news.html')
+    oldnews.save_contents('articles/research/blog','g_oldnews.html')

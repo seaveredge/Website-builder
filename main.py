@@ -136,7 +136,7 @@ class Body(html_template):
     def __init__(self, title):
         self.title = title
         self.header_items = []
-        super().__init__("articles/" + self.title.lower() + "/main.html")
+        super().__init__("articles/" + self.title.lower() + "/t_main.html")
         self.articles = ""
 
     def add_html_article(self,filename,name,tag=None):
@@ -163,6 +163,7 @@ class Body(html_template):
 
 if __name__ == '__main__':
     exec(open("synthesize_refs.py").read())
+    exec(open("synthesize_news.py").read())
     # Home page
     home = Body('Home')
     home.add_html_article("aboutme.html", "About me", tag="aboutme")
@@ -172,9 +173,9 @@ if __name__ == '__main__':
     #===================================================================================================================
     # Research page
     research = Body('Research')
-    research.add_html_article("news.html", "News")
+    research.add_html_article("g_news.html", "News")
     research.add_html_article("blog.html", "Blogs")
-    research.add_html_article("publications.html", "Publications")
+    research.add_html_article("g_publications.html", "Publications")
     make_index_file(research, output_folder="./../SD-research")
 
     # separate pages
@@ -192,6 +193,11 @@ if __name__ == '__main__':
     softwarepage.reset_body()  # required to make an empty page
     softwarepage.add_html_article("blog/software.html", "Back to blogs", "#https://research.chrisverhoek.com/#blogs")
     make_index_file(softwarepage, output_folder="./../SD-research/content", file_name="software.html")
+
+    oldnewspage = Body('Research')
+    oldnewspage.reset_body()  # required to make an empty page
+    oldnewspage.add_html_article("blog/g_oldnews.html", "Back to blogs", "#https://research.chrisverhoek.com/#blogs")
+    make_index_file(oldnewspage, output_folder="./../SD-research/content", file_name="oldnews.html")
 
     #===================================================================================================================
     # Personal page

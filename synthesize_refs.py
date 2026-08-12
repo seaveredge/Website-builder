@@ -23,8 +23,8 @@ def get_refs():
 
 class References:
     def __init__(self):
-        self.refhtml = html_template("articles/research/references.html")
-        self.bibhtml = html_template("articles/research/bibrefs.html")
+        self.refhtml = html_template("articles/research/t_references.html")
+        self.bibhtml = html_template("articles/research/t_bibrefs.html")
 
     def add_identifier(self,RefList):
         self.refhtml.replace_text(RefList.identifier,RefList.thelist)
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     A.cite('blux2020')
     htmlfiles.add_identifier(A)
 
-    htmlfiles.refhtml.save_contents('articles/research','publications.html')
+    htmlfiles.refhtml.save_contents('articles/research','g_publications.html')
     htmlfiles.bibhtml.save_contents('./../SD-research/content', 'references.html')
 
 
