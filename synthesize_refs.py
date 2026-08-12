@@ -144,8 +144,10 @@ if __name__ == '__main__':
 
     J = ReferenceList('JOURNAL')
     J.cite('verhoek2026dpcjournal')
-    J.cite('verhoek2026behavddrep')
-    J.cite('verhoek2026interpolation')
+    J.cite('verhoek2026behavddrep', preprint=True)
+    J.cite('verhoek2026interpolation', preprint=True)
+    J.cite('porcari2026subspace')
+    J.cite('gyorok2026datadriven')
     J.cite('markovskyVerhoek2026mpum')
     J.cite('hemelhof2026identification')
     J.cite('gyorok2026datadriven')
