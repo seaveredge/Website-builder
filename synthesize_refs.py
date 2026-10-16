@@ -39,19 +39,19 @@ class ReferenceList:
         self.lib = get_refs()
         self.library = self.lib.entries_dict
 
-    def cite(self,tag,preprint=False):
-        self.thelist = self.thelist + "<li id = \"pub" + tag + "\">\n\t" + self.get_bib_format(tag,preprint) + "\n</li>\n"
+    def cite(self,tag,preprint=False, equal_contribution=0):
+        self.thelist = self.thelist + "<li id = \"pub" + tag + "\">\n\t" + self.get_bib_format(tag,preprint, equal_contribution) + "\n</li>\n"
         self.theref = self.theref + self.get_bibref_format(tag)
 
     def get_bibref_format(self,tag):
         # todo: Select specific fields to include
         return "<pre id = \"" + tag + "\">\n" + self.library[tag].raw + "\n</pre>\n\n"
 
-    def get_bib_format(self,tag,preprint=False):
+    def get_bib_format(self,tag,preprint=False, equal_contribution=0):
         if tag not in self.library: raise ValueError('bib entry not in refs.bib!!')
         entry = self.library[tag].fields_dict
         if not self.check_entry(tag) and not preprint: raise ValueError('bib entry: ' + tag + 'incorrect item in refs.bib!!')
-        htmlformat = self.authorlist(entry) + "(" + entry['year'].value + "). \"" + entry['title'].value + ".\" " + self.pubwhere(entry,preprint) + self.checknote(entry) +  self.pdf_and_bibtex(tag)
+        htmlformat = self.authorlist(entry, equal_contribution=equal_contribution) + "(" + entry['year'].value + "). \"" + entry['title'].value + ".\" " + self.pubwhere(entry,preprint) + self.checknote(entry) +  self.pdf_and_bibtex(tag)
         return htmlformat
 
     def check_entry(self,tag):
@@ -86,7 +86,7 @@ class ReferenceList:
             wherepubbed = wherepubbed + ". "
         return wherepubbed
 
-    def authorlist(self, item, editorflag=False):
+    def authorlist(self, item, editorflag=False, equal_contribution=0):
         if editorflag is False:
             auth = item['author']
         else:
@@ -96,15 +96,18 @@ class ReferenceList:
             string = ""
         else:
             string = "(Editors: " if N > 1 else "(Editor: "
+        if equal_contribution > N: raise ValueError('More equal contributors than authors!!')
+        if equal_contribution == 1: raise ValueError('Cannot have one equal contributor!!')
         for i in range(N):
             Ninitials = len(auth.value[i].first)
-            if auth.value[i].last[0] == 'Verhoek': string = string + '<b>'
-            for j in range(Ninitials):
+            if auth.value[i].last[0] == 'Verhoek': string = string + '<b>' # make me bold
+            for j in range(Ninitials): # loop over initials
                 string = string + auth.value[i].first[j][0] + "."
-            if len(auth.value[i].von) != 0:
+            if len(auth.value[i].von) != 0: # loop over 'van der etc' part of name
                 string = string + " " + auth.value[i].von[0]
-            string = string + " " + auth.value[i].last[0]
-            if auth.value[i].last[0] == 'Verhoek': string = string + '</b>'
+            string = string + " " + auth.value[i].last[0]   # Last name
+            if auth.value[i].last[0] == 'Verhoek': string = string + '</b>' # close bold
+            if editorflag is False and equal_contribution > i: string = string + "*"
             if i < N - 2:
                 string = string + ", "
             elif i == N - 2:
@@ -143,14 +146,14 @@ if __name__ == '__main__':
     htmlfiles = References()
 
     J = ReferenceList('JOURNAL')
-    J.cite('verhoek2026dpcjournal')
-    J.cite('verhoek2026behavddrep', preprint=True)
-    J.cite('verhoek2026interpolation', preprint=True)
-    J.cite('porcari2026subspace')
-    J.cite('gyorok2026datadriven')
-    J.cite('markovskyVerhoek2026mpum')
+    J.cite('zieglmeier2026heating', preprint=True)
+    J.cite('porcari2026subspace', preprint=True)
+    J.cite('gyorok2026datadriven', preprint=True)
+    J.cite('verhoek2026interpolation')
     J.cite('hemelhof2026identification')
-    J.cite('gyorok2026datadriven')
+    J.cite('markovskyVerhoek2026mpum')
+    J.cite('verhoek2026behavddrep')
+    J.cite('verhoek2026dpcjournal')
     J.cite('hoekstra2025augmentation')
     J.cite('verhoek2025-J-statefeedback')
     J.cite('verhoek2024dd_dissipativity')
@@ -158,14 +161,15 @@ if __name__ == '__main__':
     htmlfiles.add_identifier(J)
 
     C = ReferenceList('CONFERENCE')
+    C.cite('verhoek2026codesign', preprint=True) # hack to use article bib class
     C.cite('verhoek2026quantitative', preprint=True) # hack to use article bib class
-    C.cite('schmitz2026continuous', preprint=True) # hack to use article bib class
+    C.cite('schmitz2026continuous', preprint=True, equal_contribution=2) # hack to use article bib class
     C.cite('verhoek2024decoupling')
     C.cite('huijgevoort2024DDSTL')
     C.cite('spin2024unified')
     C.cite('verhoek2023generalnonlinear')
     C.cite('verhoek2023experiment')
-    C.cite('verhoek2023stablelearning')
+    C.cite('verhoek2023stablelearning', equal_contribution=2)
     C.cite('ai4gncpaper')
     C.cite('verhoek2022lpvsubnet')
     C.cite('deLange2022lpv')
